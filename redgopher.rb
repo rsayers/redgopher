@@ -4,7 +4,7 @@
 
 require 'socket'
 require 'tempfile'
-types ={
+$types ={
   "0"=>"TXT",
   "1"=>"DIR",
   "2"=>"CSO",
@@ -23,17 +23,21 @@ types ={
 pager="less"
 pagermode=0
 
-opts=ARGV[0] ? ARGV[0].split('/') : ["robsayers.com","1","/"]
-host = opts.shift || 'robsayers.com'
-type = opts.shift 
-
-if !types.has_key?(type) then
-  opts.unshift(type)
-  puts "No type given, assuming 1"
-  type="1"
+def parseurl(url)
+  opts=url.sub('gopher://','').split('/') # split the url by slashes
+  host=opts.shift # the first element will be our host
+  type=opts.shift # type is second
+  if !$types.has_key?(type) then # check to see if a type was provided
+    opts.unshift(type) # if not, then its part of the path, put it back
+    puts "No type given, assuming 1" # tell them the error of their ways
+    type="1" # and assume its a directory
+  end
+  path = opts.first.nil? ? '/' :  opts.join('/') # if no path is provided, we go to the root
+  [host,type,path] # return it!
 end
+  
+host,type,path=parseurl(ARGV[0] || 'robsayers.com' ) 
 
-path = opts.join('/') || '/'
 
 history=[]
 input=""
@@ -53,9 +57,14 @@ while input!="quit" do
   rescue
     puts "Error connecting to "+host
   end
-  history << [host,path,type]
+  history << [host,path,type] # so we can go back later
   case type
   when "0"
+
+    # pagermode will write the data to a temp file, then pipe it through less
+    # if pager mode is not on, it will not save anything, I'm considering 
+    # forcing it anyhow for caching... good idea?
+
     if pagermode == 1 then
       fp=Tempfile.new('redgopher')  
       fp.puts t.read
@@ -74,7 +83,7 @@ while input!="quit" do
       linedata = l.split("\t")
       linetype=l[0]
       desc=linedata[0][1,linedata[0].length-1]
-      if type=='i' || types[linetype].nil?
+      if type=='i' || $types[linetype].nil?
         if pagermode==1 then 
           fp.puts desc
         else
@@ -82,9 +91,9 @@ while input!="quit" do
         end
       else
         if pagermode==1 then
-          fp.puts count.to_s+". ["+types[linetype]+"] "+desc
+          fp.puts count.to_s+". ["+$types[linetype]+"] "+desc
         else
-          puts count.to_s+". ["+types[linetype]+"] "+desc
+          puts count.to_s+". ["+$types[linetype]+"] "+desc
         end
         res[count]=[linedata[2],linedata[1],linetype]
         count+=1
@@ -92,7 +101,9 @@ while input!="quit" do
     end
     fp.close if pagermode==1
     system pager +" "+fp.path if pagermode==1
-  else 
+  else # if its not a dir or text file, prompt to save
+    # i will eventually have handlers for at least html and telnet
+    # maybe even more
     if types.has_key?(type) then
       filename = path.split('/').last
       print "Save File? (y/n)"
@@ -120,8 +131,8 @@ while input!="quit" do
       type=res[input.to_i][2]
     end
   elsif input == "b"
-    history.pop unless history.length==1
-    host,path,type = history.pop
+    history.pop unless history.length==1 # remove the last item unless there is only 1(the current url)
+    host,path,type = history.pop # remove the current url
   elsif input == "r"
     path="/"
     type="1"
@@ -137,9 +148,9 @@ while input!="quit" do
   elsif input == ""
     # do nothing
   else
-    type="1"
-    host=input
-    path="/"
+    
+    host,type,path=parseurl(input)
+    
   end
 end
 
