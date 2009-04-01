@@ -1,0 +1,45 @@
+RedGopher - A super simple gophper client in Ruby
+-------------------------------------------------
+
+RedGopher is a client I wrote so dumb terminals can browse gopherspace.
+
+Every other console client I've tried uses curses, while this is great on a
+fully functional terminal,  it doesnt work so well on say a Tandy model 100.
+
+Make sure you edit the first line to reflect the location of your ruby 
+interpreter.  This has been tested with 1.9.1, but it *should* work with 1.8,
+maybe even older
+
+Running it is simple:
+
+$ redgopher.rb
+
+wiill run the program and connect to my site by default
+
+$ redgopher.rb hostname.com/0/file.txt
+
+will go directly to a file,  if you omit the type, it will assume a type of 1
+(a directory), and may guess wrong,  you are advised to enter the full url.
+
+Right now it will only display directories and text files,  all others will
+prompt you to download.
+
+After displaying something, you will be presented with a prompt, you can type
+the following commands:
+
+b - will take you back in your history
+quit - will exit the program
+r - will take you to the root of whatever server you are viewing
+
+Type the number next to an item in a directory to view it.
+
+any other string will be interpreted as a hostname and redgopher will try to
+connect to its root.  You can't specify paths here,  not yet at least.
+
+All info is dumped to the screen raw,  your local terminals scrolling feature
+will be needed to see text larger than a screenfull.
+
+Info can be found at
+
+gopher://robsayers.com/1/redgopher
+http://github.com/rsayers/redgopher/tree/master
