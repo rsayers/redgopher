@@ -30,14 +30,15 @@ the following commands:
 b - will take you back in your history
 quit - will exit the program
 r - will take you to the root of whatever server you are viewing
+p - togging paging mode.  With this on the output will be piped to your
+system pager (defaults to "less").  Useful for terminals where this
+works and dont want to rely on their terminals scroll feature.
 
 Type the number next to an item in a directory to view it.
 
 any other string will be interpreted as a hostname and redgopher will try to
 connect to its root.  You can't specify paths here,  not yet at least.
 
-All info is dumped to the screen raw,  your local terminals scrolling feature
-will be needed to see text larger than a screenfull.
 
 Info can be found at
 
