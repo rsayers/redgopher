@@ -14,7 +14,7 @@ Running it is simple:
 
 $ redgopher.rb
 
-wiill run the program and connect to my site by default
+will run the program and connect to my site by default
 
 $ redgopher.rb hostname.com/0/file.txt
 
